@@ -23,38 +23,45 @@ cases_df = data_df.groupby(['FechaDiagnostResultLaboratorio', 'localidadAsis']).
     'localidadAsis': 'locality'}).pivot(index='date_time', columns='locality', values='cases')
 cases_df = cases_df.fillna(0)
 
-import rpy2
-import numpy as np
-from rpy2.robjects.packages import importr
-import rpy2.robjects.numpy2ri
-import rpy2.robjects as ro
-from rpy2.robjects import pandas2ri
+deaths_df = data_df.groupby(['FechadeMuerte', 'localidadAsis']).sum()[['cases']].reset_index().rename(columns={
+    'FechadeMuerte': 'date_time',
+    'localidadAsis': 'locality'}).pivot(index='date_time', columns='locality', values='cases')
+deaths_df = deaths_df.fillna(0)
 
-rpy2.robjects.numpy2ri.activate()
-epinow2 = importr("EpiNow2")
-dplyr   = importr('dplyr')
-
-generation_time   = epinow2.get_generation_time(disease = "SARS-CoV-2", source = "ganyani")
-incubation_period = epinow2.get_incubation_period(disease = "SARS-CoV-2", source = "lauer")
-reporting_delay   = epinow2.estimate_delay(ro.r.rlnorm(1000,  ro.r.log(3), 1),
-                                  max_value = 15, bootstraps = 1)
+hosp_df = data_df.groupby(['FechaHospitalizacion', 'localidadAsis']).sum()[['cases']].reset_index().rename(columns={
+    'FechaHospitalizacion': 'date_time',
+    'localidadAsis': 'locality'}).pivot(index='date_time', columns='locality', values='cases')
+hosp_df = hosp_df.fillna(0)
 
 
-loc_df = cases_df[['01 - Usaquén']].reset_index()
-loc_df = loc_df.rename(columns={'date_time': 'date', '01 - Usaquén': 'confirm'})
-loc_df = loc_df.set_index('date')[['confirm']].resample('D').sum().reset_index()
-loc_df['date'] = loc_df['date'].map(lambda x: str(x.strftime( "%Y-%m-%d")))
 
-from rpy2.robjects.conversion import localconverter
-with localconverter(ro.default_converter + pandas2ri.converter):
-    r_from_pd_df = ro.conversion.py2rpy(loc_df[['date','confirm']])
+df_all = []
+region = []
+for l in cases_df.keys():
+    df_all.append(cases_df[[l]].rename(columns={l:'confirm'}))
+    region.extend([l]*len(cases_df))
+df_all = pd.concat(df_all)
+df_all['region'] = region
 
-base = importr('base')
+df_all_deaths = []
+region = []
+for l in deaths_df.keys():
+    df_all_deaths.append(deaths_df[[l]].rename(columns={l:'deaths'}))
+    region.extend([l]*len(deaths_df))
+df_all_deaths = pd.concat(df_all_deaths)
+df_all_deaths['region'] = region
 
-r_from_pd_df = dplyr.mutate(r_from_pd_df, date= base.as_Date(date, format= "%Y-%m-%d"))
+df_all_hosp = []
+region = []
+for l in deaths_df.keys():
+    df_all_hosp.append(deaths_df[[l]].rename(columns={l:'hospitalization'}))
+    region.extend([l]*len(deaths_df))
+df_all_hosp = pd.concat(df_all_hosp)
+df_all_hosp['region'] = region
 
-bogota_rt = epinow2.epinow(reported_cases = r_from_pd_df,
-                    generation_time = generation_time,
-                    delays = epinow2.delay_opts(incubation_period, reporting_delay),
-                    rt = epinow2.rt_opts(prior = ro.r.list(mean = 2, sd = 0.2)),
-                    stan = epinow2.stan_opts(cores = 4))
+df_bogota = pd.merge(df_all.reset_index(), df_all_deaths.reset_index(), on=['date_time', 'region'], how='outer').fillna(0)
+df_bogota = pd.merge(df_bogota, df_all_hosp.reset_index(), on=['date_time', 'region'], how='outer').fillna(0)
+
+df_bogota = df_bogota[['date_time','confirm', 'deaths', 'region']].rename(columns={'date_time': 'date'})
+
+df_bogota.to_csv(os.path.join(data_dir, 'cases', 'cases_prepared.csv'))
