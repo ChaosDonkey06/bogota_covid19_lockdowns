@@ -1,13 +1,20 @@
-import rpy2
+from global_config import config
+import pandas as pd
 import numpy as np
+import rpy2
+import os
+
+from rpy2.robjects.conversion import localconverter
 from rpy2.robjects.packages import importr
+from rpy2.robjects import pandas2ri
 import rpy2.robjects.numpy2ri
 import rpy2.robjects as ro
-from rpy2.robjects import pandas2ri
+
 
 rpy2.robjects.numpy2ri.activate()
 epinow2 = importr("EpiNow2")
 dplyr   = importr('dplyr')
+base    = importr('base')
 
 generation_time   = epinow2.get_generation_time(disease = "SARS-CoV-2", source = "ganyani")
 incubation_period = epinow2.get_incubation_period(disease = "SARS-CoV-2", source = "lauer")
@@ -15,13 +22,15 @@ reporting_delay   = epinow2.estimate_delay(ro.r.rlnorm(1000,  ro.r.log(3), 1),
                                   max_value = 15, bootstraps = 1)
 
 
+data_dir_mnps = config.get_property('geo_dir')
+data_dir      = config.get_property('data_dir')
+results_dir   = config.get_property('results_dir')
 
+df_bogota = pd.read_csv(os.path.join(data_dir, 'cases', 'cases_prepared.csv'),index_col=None).rename(columns={'date_time': 'date'})
 
-from rpy2.robjects.conversion import localconverter
 with localconverter(ro.default_converter + pandas2ri.converter):
     r_df_bogota = ro.conversion.py2rpy(df_bogota[['date','confirm', 'region']])
 
-base = importr('base')
 
 r_df_bogota[0]  = base.as_Date(r_df_bogota[0], format= "%Y-%m-%d")
 
