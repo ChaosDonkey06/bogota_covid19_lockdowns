@@ -41,7 +41,7 @@ path_to_save = '/Users/chaosdonkey06/Dropbox/bogota_rotating_lockdowns/rt'
 poly_ids = [ '{0:02d}'.format(n) for n in range(1,20)]
 
 for l in poly_ids:
-    print('Running rt estimates for loc {} - {}'.format(l, np.unique(df_bogota[df_bogota.poly_id==l]['poly_name'])))
+    print('Running rt estimates for loc {} - {}'.format(l, np.unique(df_bogota[df_bogota.poly_id==l]['poly_name'])[0] ))
     df_bogota_loc = df_bogota[df_bogota.poly_id==l]
 
 
