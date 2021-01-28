@@ -37,11 +37,12 @@ r_df_bogota[0]  = base.as_Date(r_df_bogota[0], format= "%Y-%m-%d")
 df_bogota['poly_id']   = df_bogota['region'].map(lambda x: x.split('-')[0].strip() )
 df_bogota['poly_name'] = df_bogota['region'].map(lambda x: x.split('-')[-1].strip())
 
-path_to_save = '/Users/chaosdonkey06/Dropbox/bogota_rotating_lockdowns/rt'
-poly_ids = [ '{0:02d}'.format(n) for n in range(1,20)]
+path_to_save = '/Users/chaosdonkey06/Dropbox/bogota_rotating_lockdowns'
+poly_ids = [ '{0:02d}'.format(n) for n in range(1,21)]
 
 for l in poly_ids:
     print('Running rt estimates for loc {} - {}'.format(l, np.unique(df_bogota[df_bogota.poly_id==l]['poly_name'])[0] ))
+
     df_bogota_loc = df_bogota[df_bogota.poly_id==l]
 
 
@@ -57,7 +58,7 @@ for l in poly_ids:
                         stan = epinow2.stan_opts(cores = 4))#, verborse=ro.r.TRUE)
 
     inf_df = pd.DataFrame( bogota_rt[0][0] )
-    inf_df.to_csv( os.path.join(path_to_save, 'rt', 'infections_df_{}_confirmation.csv'.format(l)) )
+    inf_df.to_csv( os.path.join(path_to_save, 'infections', 'infections_df_{}_confirmation.csv'.format(l)) )
 
     rt_df  = pd.DataFrame( bogota_rt[0][1] )
-    rt_df.to_csv( os.path.join(path_to_save, 'infections', 'rt_df_{}_confirmation.csv'.format(l)) )
+    rt_df.to_csv( os.path.join(path_to_save, 'rt', 'rt_df_{}_confirmation.csv'.format(l)) )
