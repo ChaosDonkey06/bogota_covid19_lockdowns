@@ -13,7 +13,6 @@ import rpy2.robjects as ro
 
 rpy2.robjects.numpy2ri.activate()
 epinow2 = importr("EpiNow2")
-dplyr   = importr('dplyr')
 base    = importr('base')
 
 generation_time   = epinow2.get_generation_time(disease = "SARS-CoV-2", source = "ganyani")
@@ -49,7 +48,6 @@ for l in poly_ids:
     with localconverter(ro.default_converter + pandas2ri.converter):
         r_df_bogota_loc = ro.conversion.py2rpy(df_bogota_loc[['date','confirm']])
     r_df_bogota_loc[0]  = base.as_Date(r_df_bogota_loc[0], format= "%Y-%m-%d")
-
 
     bogota_rt = epinow2.epinow(reported_cases = r_df_bogota_loc,
                         generation_time = generation_time,
