@@ -1,4 +1,4 @@
 name,value
-geo_dir,/Users/chaosdonkey06/Dropbox/shapefiles/bogota/
-data_dir,/Users/chaosdonkey06/Dropbox/bogota_rotating_lockdowns/data/
-results_dir,/Users/chaosdonkey06/Dropbox/bogota_rotating_lockdowns/
+geo_dir,/home/covid3/Dropbox/shapefiles/bogota/
+data_dir,/home/covid3/Dropbox/bogota_rotating_lockdowns/data/
+results_dir,/home/covid3/Dropbox/bogota_rotating_lockdowns/
