@@ -44,6 +44,8 @@ for l in poly_ids:
 
     df_bogota_loc = df_bogota[df_bogota.poly_id==l]
 
+    if os.path.isfile(path_to_save, 'infections', 'infections_df_{}_confirmation.csv'.format(l)):
+        continue
 
     with localconverter(ro.default_converter + pandas2ri.converter):
         r_df_bogota_loc = ro.conversion.py2rpy(df_bogota_loc[['date','confirm']])
