@@ -59,6 +59,5 @@ for l in poly_ids:
 
     inf_df = pd.DataFrame( bogota_rt[0][0] )
     inf_df.to_csv( os.path.join(path_to_save, 'infections', 'infections_df_{}_confirmation.csv'.format(l)) )
-
     rt_df  = pd.DataFrame( bogota_rt[0][1] )
     rt_df.to_csv( os.path.join(path_to_save, 'rt', 'rt_df_{}_confirmation.csv'.format(l)) )

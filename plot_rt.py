@@ -12,6 +12,10 @@ from rpy2.robjects import pandas2ri
 import rpy2.robjects.numpy2ri
 import rpy2.robjects as ro
 
+
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+
 from matplotlib.dates import date2num, num2date
 from matplotlib import dates as mdates
 from matplotlib import ticker
@@ -100,7 +104,7 @@ def plot_rt_pannel(cases_df, g1, all_loc, title, date1, date2, path_to_save_fig)
         df_bogota_loc = df_bogota[df_bogota.poly_name==l]
         poly_id = df_bogota_loc['poly_id'].iloc[0]
 
-        rt_df = pd.read_csv(os.path.join(path_to_save, 'infections', 'rt_df_{}_confirmation.csv'.format(poly_id)))
+        rt_df = pd.read_csv(os.path.join(path_to_save, 'infections_old', 'rt_df_{}_confirmation.csv'.format(poly_id)))
         rt_df = rt_df[rt_df.variable=='R']
         rt_df['date'] = pd.date_range(start=df_bogota_loc['date'].iloc[0], periods=len(rt_df) )
         rt_df= rt_df.iloc[:len(df_bogota_loc)]
@@ -141,4 +145,62 @@ plot_rt_pannel(df_bogota, g3, all_localities, title='Grupo 3', date1='2020-07-31
 plt.close()
 
 plot_rt_pannel(df_bogota, g4, all_localities, title='Grupo 4', date1='2020-08-16', date2='2020-08-24', path_to_save_fig=os.path.join(path_to_save, 'grupo4.png'))
+plt.close()
+
+def plot_rt_pannel_zoomed(cases_df, g1, all_loc, title, date1, date2, path_to_save_fig):
+
+    fig, ax = plt.subplots(2, 1, figsize=(12.5, 7), sharex='all')
+    for l in g1:
+        print('Plotting rt estimates for loc {}'.format( l ))
+        df_bogota_loc = cases_df[cases_df.poly_name==l]
+        poly_id = df_bogota_loc['poly_id'].iloc[0]
+
+        rt_df = pd.read_csv(os.path.join(path_to_save, 'infections', 'rt_df_{}_confirmation.csv'.format(poly_id)))
+        rt_df = rt_df[rt_df.variable=='R']
+        rt_df['date'] = pd.date_range(start=df_bogota_loc['date'].iloc[0], periods=len(rt_df) )
+        rt_df= rt_df.iloc[:len(df_bogota_loc)]
+
+        ax.fill_between(rt_df.date, rt_df.upper_90, rt_df.lower_90, alpha=0.2)
+        ax.plot(rt_df.date, rt_df['median'], label=l)
+        ax.axhline(y=1, color='k', linestyle='--')
+        ax.xaxis.set_major_locator(mdates.MonthLocator())
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+        ax.xaxis.set_minor_locator(mdates.DayLocator())
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator())
+        ax.xaxis.set_major_locator(mdates.MonthLocator())
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.grid(which='major', axis='y', c='k', alpha=.1, zorder=-2)
+        ax.tick_params(axis='both', labelsize=15)
+        ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
+        ax.set_title(title, fontsize=15)
+        ax.set_ylabel(r'$R_t$', fontsize=15)
+        ax.legend(fontsize=15)
+        ax.set_ylim([0.4, 2.5])
+        ax.axvline(x=pd.to_datetime(date1), ymin=0, ymax=3, color='k')
+        ax.axvline(x=pd.to_datetime(date2), ymin=0, ymax=3, color='k', linestyle='--')
+        ax.legend(loc='upper left')
+
+        axins = zoomed_inset_axes(ax, 6, loc=1, zoom = 6)
+
+        axins.fill_between(rt_df.date, rt_df.upper_90, rt_df.lower_90, alpha=0.2)
+        axins.plot(rt_df.date, rt_df['median'], label=l)
+        # sub region of the original image
+        axins.set_xlim(pd.to_datetime(date1), pd.to_datetime(date1))
+        axins.set_ylim(0.5, 2)
+    if path_to_save_fig:
+        fig.savefig(path_to_save_fig, dpi=300,  bbox_inches='tight', transparent=True)
+
+plot_rt_pannel_zoomed(df_bogota, g1, all_localities, title='Grupo 1', date1='2020-07-13', date2='2020-07-23', path_to_save_fig=os.path.join(path_to_save, 'grupo1_zoom.png'))
+plt.close()
+
+plot_rt_pannel_zoomed(df_bogota, g2, all_localities, title='Grupo 2', date1='2020-07-23', date2='2020-08-06', path_to_save_fig=os.path.join(path_to_save, 'grupo2_zoom.png'))
+plt.close()
+
+plot_rt_pannel_zoomed(df_bogota, g3, all_localities, title='Grupo 3', date1='2020-07-31', date2='2020-08-14', path_to_save_fig=os.path.join(path_to_save, 'grupo3_zoom.png'))
+plt.close()
+
+plot_rt_pannel_zoomed(df_bogota, g4, all_localities, title='Grupo 4', date1='2020-08-16', date2='2020-08-24', path_to_save_fig=os.path.join(path_to_save, 'grupo4_zoom.png'))
 plt.close()
