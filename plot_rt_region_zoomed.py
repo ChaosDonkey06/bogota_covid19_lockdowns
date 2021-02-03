@@ -1,5 +1,3 @@
-
-
 from global_config import config
 import pandas as pd
 import numpy as np
@@ -15,6 +13,7 @@ import rpy2.robjects as ro
 
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+from mpl_toolkits.axes_grid.inset_locator import inset_axes
 
 from matplotlib.dates import date2num, num2date
 from matplotlib.colors import ListedColormap
@@ -66,10 +65,27 @@ g4 = ['Usaquén', 'Chapinero', 'Santa Fe', 'La Candelaria', 'Teusaquillo', 'Puen
 
 all_localities = g1+g2+g3+g4
 
+rt_df_all = []
+for idx, l in enumerate(np.unique(all_localities)):
+    df_bogota_loc = df_bogota[df_bogota.poly_name==l]
+    poly_id = df_bogota_loc['poly_id'].iloc[0]
+
+    rt_df = pd.read_csv(os.path.join(path_to_save, 'rt', 'rt_df_{}_confirmation.csv'.format(poly_id)))
+    rt_df['region']    = l
+    rt_df['region_id'] = poly_id
+    rt_df_all.append(rt_df)
+rt_df_all = pd.concat(rt_df_all)
+rt_df_all = rt_df_all[rt_df_all.type=='estimate']
+rt_df_all = rt_df_all[rt_df_all.variable=='R']
+
+rt_df_all['date'] = rt_df_all['date'].map(lambda x: pd.to_datetime(0)+timedelta(days=x))
+rt_df_all = rt_df_all[['date', 'median', 'mean', 'lower_90', 'lower_50', 'lower_20', 'upper_20', 'upper_50', 'upper_90', 'region', 'region_id']]
+
+
 # color will now be an RGBA tuple
 import pylab
 
-def plot_rt_pannel_zoomed(cases_df, g1, all_loc, title, date1, date2, path_to_save_fig):
+def plot_rt_pannel_zoomed(rt_df, g1, all_loc, title, date1, date2, path_to_save_fig):
 
     fig, ax = plt.subplots(1, 1, figsize=(12.5, 7), sharex='all')
 
@@ -78,17 +94,13 @@ def plot_rt_pannel_zoomed(cases_df, g1, all_loc, title, date1, date2, path_to_sa
 
     for idx, l in enumerate(g1):
         print('Plotting rt estimates for loc {}'.format( l ))
-        df_bogota_loc = cases_df[cases_df.poly_name==l]
-        poly_id = df_bogota_loc['poly_id'].iloc[0]
 
-        rt_df = pd.read_csv(os.path.join(path_to_save, 'rt', 'rt_df_{}_confirmation.csv'.format(poly_id)))
-        rt_df = rt_df[rt_df.variable=='R']
-        rt_df['date'] = pd.date_range(start=df_bogota_loc['date'].iloc[0], periods=len(rt_df) )
-        rt_df= rt_df.iloc[:len(df_bogota_loc)]
+
+        rt_df_loc = rt_df[rt_df.region==l]
 
         color = cm(1.*idx/NUM_COLORS)
-        ax.fill_between(rt_df.date, rt_df.upper_90, rt_df.lower_90, alpha=0.2, color=color)
-        ax.plot(rt_df.date, rt_df['median'], label=l, color=color)
+        ax.fill_between(rt_df_loc.date, rt_df_loc.upper_90, rt_df_loc.lower_90, alpha=0.2, color=color)
+        ax.plot(rt_df_loc.date, rt_df_loc["median"], label=l, color=color)
         ax.axhline(y=1, color='k', linestyle='--')
         ax.xaxis.set_major_locator(mdates.MonthLocator())
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
@@ -109,57 +121,94 @@ def plot_rt_pannel_zoomed(cases_df, g1, all_loc, title, date1, date2, path_to_sa
         ax.axvline(x=pd.to_datetime(date1), ymin=0, ymax=3, color='k')
         ax.axvline(x=pd.to_datetime(date2), ymin=0, ymax=3, color='k', linestyle='--')
         ax.legend(loc='upper left')
-    ax.set_xlim(rt_df.date.iloc[0]-timedelta(days=2), rt_df.date.iloc[-1]+timedelta(days=30))
+    ax.set_xlim('2020-03-01', pd.to_datetime('2020-10-31')+timedelta(days=2))
 
-    axins = zoomed_inset_axes(ax, 2, loc=1)#, zoom = 6)
+    axins = zoomed_inset_axes(ax, 2,
+                        loc='upper right')
+    # this is an inset axes over the main axes
+
     for idx, l in enumerate(g1):
         print('Plotting rt estimates for loc {}'.format( l ))
-        df_bogota_loc = cases_df[cases_df.poly_name==l]
-        poly_id = df_bogota_loc['poly_id'].iloc[0]
-
-        rt_df = pd.read_csv(os.path.join(path_to_save, 'rt', 'rt_df_{}_confirmation.csv'.format(poly_id)))
-        rt_df = rt_df[rt_df.variable=='R']
-        rt_df['date'] = pd.date_range(start=df_bogota_loc['date'].iloc[0], periods=len(rt_df) )
-        rt_df= rt_df.iloc[:len(df_bogota_loc)]
-
+        rt_df_loc = rt_df[rt_df.region==l]
         color = cm(1.*idx/NUM_COLORS)
-        axins.fill_between(rt_df.date, rt_df.upper_90, rt_df.lower_90, alpha=0.2, color=color)
-        axins.plot(rt_df.date, rt_df['median'], label=l, color=color)
-
-        # sub region of the original image
-        axins.set_xlim(pd.to_datetime(date1)-timedelta(days=2), pd.to_datetime(date2)+timedelta(days=2))
-        axins.set_ylim(0.75, 1.2)
-    #axins.set_xticks(visible=False)
-    #axins.set_yticks(visible=False)
+        axins.fill_between(rt_df_loc.date, rt_df_loc.upper_90, rt_df_loc.lower_90, alpha=0.1, color=color)
+        axins.plot(rt_df_loc.date, rt_df_loc["median"], label=l, color=color, alpha=0.1, linewidth=0.5)
+        axins.axhline(y=1, color='k', linestyle='--')
+    axins.set_xlim(pd.to_datetime(date1)-timedelta(days=8), pd.to_datetime(date2)+timedelta(days=8))
+    # sub region of the original image
+    axins.set_ylim(0.8, 1.2)
+    axins.set_xticklabels('')
+    axins.set_yticklabels('')
     mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
-    axins.xaxis.set_major_locator(mdates.MonthLocator())
-    axins.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
-    axins.xaxis.set_minor_locator(mdates.DayLocator())
-    axins.xaxis.set_major_locator(mdates.WeekdayLocator())
-    axins.xaxis.set_major_locator(mdates.MonthLocator())
-    axins.axvline(x=pd.to_datetime(date1), ymin=0, ymax=3, color='k')
-    axins.axvline(x=pd.to_datetime(date2), ymin=0, ymax=3, color='k', linestyle='--')
-    axins.axhline(y=1, color='k', linestyle='--')
-    axins.tick_params(
-        axis='both',          # changes apply to the x-axis
-        which='major',      # both major and minor ticks are affected
-        bottom=False,      # ticks along the bottom edge are off
-        top=False,         # ticks along the top edge are off
-        labelbottom=False)
 
+    axins = inset_axes(ax,
+                        width=2.05, # width = 30% of parent_bbox
+                        height=2.05, # height : 1 inch
+                        loc='upper right')
+
+    #rt_df = rt_df_all.copy()
+    #date1='2020-07-13';s date2='2020-07-23'
+    rt_df_locs = rt_df[rt_df.region.isin(g1)]
+    pre_lockdown = pd.date_range(start=pd.to_datetime(date1)-timedelta(days=15), end=pd.to_datetime(date1)-timedelta(days=1))
+    lockdown     = pd.date_range(start=pd.to_datetime(date1), end=pd.to_datetime(date2))
+    pos_lockdown = pd.date_range(start=pd.to_datetime(date2)+timedelta(days=1), end=pd.to_datetime(date2)+timedelta(days=15))
+
+    rt_df_pre_lockdown =  rt_df_locs[rt_df_locs.date.isin(pre_lockdown)][['median', 'mean', 'lower_90', 'lower_50', 'lower_20', 'upper_20', 'upper_50', 'upper_90']].to_numpy().reshape(-1)
+    rt_df_lockdown     =  rt_df_locs[rt_df_locs.date.isin(lockdown)][['median', 'lower_90', 'lower_50', 'lower_20', 'upper_20', 'upper_50', 'upper_90']].to_numpy().reshape(-1)
+    rt_df_pos_lockdown =  rt_df_locs[rt_df_locs.date.isin(pos_lockdown)][['median', 'lower_90', 'lower_50', 'lower_20', 'upper_20', 'upper_50', 'upper_90']].to_numpy().reshape(-1)
+
+    bp_pre  = axins.boxplot( rt_df_pre_lockdown, positions=[0], patch_artist=True, showfliers=False)
+    bp_lock = axins.boxplot( rt_df_lockdown,     positions=[0.5], patch_artist=True, showfliers=False)
+    bp_pos  = axins.boxplot( rt_df_pos_lockdown, positions=[1], patch_artist=True, showfliers=False)
+    axins.set_ylabel(r'$R_t$', fontsize=15)
+    axins.tick_params(axis='both', labelsize=15)
+
+    for patch in bp_pre['boxes']:
+        patch.set(facecolor='gray', alpha=0.5)
+        patch.set(edgecolor='black')
+    for patch in bp_lock['boxes']:
+        patch.set(facecolor='gray', alpha=0.5)
+        patch.set(edgecolor='black')
+    for patch in bp_pos['boxes']:
+        patch.set(facecolor='gray', alpha=0.5)
+        patch.set(edgecolor='black')
+
+
+    for patch in bp_pre['medians']:
+        patch.set(color='black')
+    for patch in bp_lock['medians']:
+        patch.set(color='black')
+    for patch in bp_pos['medians']:
+        patch.set(color='black')
     if path_to_save_fig:
         fig.savefig(path_to_save_fig, dpi=300,  bbox_inches='tight', transparent=True)
 
 
-
-plot_rt_pannel_zoomed(df_bogota, g1, all_localities, title='Group 1', date1='2020-07-13', date2='2020-07-23', path_to_save_fig=os.path.join(path_to_save, 'grupo1_zoom.png'))
+plot_rt_pannel_zoomed(rt_df_all, g1, all_localities, title='Group 1', date1='2020-07-13', date2='2020-07-23', path_to_save_fig=os.path.join(path_to_save, 'figures','rt' ,'g1_zoom.png'))
 plt.close()
 
-plot_rt_pannel_zoomed(df_bogota, g2, all_localities, title='Group 2', date1='2020-07-23', date2='2020-08-06', path_to_save_fig=os.path.join(path_to_save, 'Group2_zoom.png'))
+plot_rt_pannel_zoomed(rt_df_all, g2, all_localities, title='Group 2', date1='2020-07-23', date2='2020-08-06', path_to_save_fig=os.path.join(path_to_save, 'figures','rt' ,'g2_zoom.png'))
 plt.close()
 
-plot_rt_pannel_zoomed(df_bogota, g3, all_localities, title='Group 3', date1='2020-07-31', date2='2020-08-14', path_to_save_fig=os.path.join(path_to_save, 'Group3_zoom.png'))
+plot_rt_pannel_zoomed(rt_df_all, g3, all_localities, title='Group 3', date1='2020-07-31', date2='2020-08-14', path_to_save_fig=os.path.join(path_to_save, 'figures','rt' ,'g3_zoom.png'))
 plt.close()
 
-plot_rt_pannel_zoomed(df_bogota, g4, all_localities, title='Group 4', date1='2020-08-16', date2='2020-08-24', path_to_save_fig=os.path.join(path_to_save, 'grupo4_zoom.png'))
+plot_rt_pannel_zoomed(rt_df_all, g4, all_localities, title='Group 4', date1='2020-08-16', date2='2020-08-24', path_to_save_fig=os.path.join(path_to_save,'figures','rt' ,'g4_zoom.png'))
+plt.close()
+
+
+ng1 = set(all_localities)-set(g1)
+plot_rt_pannel_zoomed(rt_df_all, list(ng1), all_localities, title='Not Group 1', date1='2020-07-13', date2='2020-07-23', path_to_save_fig=os.path.join(path_to_save, 'figures','rt' ,'not_g1_zoom.png'))
+plt.close()
+
+ng2 = set(all_localities)-set(g2)
+plot_rt_pannel_zoomed(rt_df_all, ng2, all_localities, title='Not Group 2', date1='2020-07-23', date2='2020-08-06', path_to_save_fig=os.path.join(path_to_save, 'figures','rt' ,'not_g2_zoom.png'))
+plt.close()
+
+ng3 = set(all_localities)-set(g3)
+plot_rt_pannel_zoomed(rt_df_all, ng3, all_localities, title='Not Group 3', date1='2020-07-31', date2='2020-08-14', path_to_save_fig=os.path.join(path_to_save, 'figures','rt' ,'not_g3_zoom.png'))
+plt.close()
+
+ng4 = set(all_localities)-set(g4)
+plot_rt_pannel_zoomed(rt_df_all, ng4, all_localities, title='Not Group 4', date1='2020-08-16', date2='2020-08-24', path_to_save_fig=os.path.join(path_to_save,'figures','rt' ,'not_g4_zoom.png'))
 plt.close()
