@@ -10,6 +10,10 @@ from rpy2.robjects import pandas2ri
 import rpy2.robjects.numpy2ri
 import rpy2.robjects as ro
 
+import sys
+
+
+re_write_bool  = bool(sys.argv[0])
 
 rpy2.robjects.numpy2ri.activate()
 epinow2 = importr("EpiNow2")
@@ -39,12 +43,12 @@ df_bogota['poly_name'] = df_bogota['region'].map(lambda x: x.split('-')[-1].stri
 path_to_save = '/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns'
 poly_ids = [ '{0:02d}'.format(n) for n in range(1,21)]
 
-for l in poly_ids:
+for l in np.flip(poly_ids):
     print('Running rt estimates for loc {} - {}'.format(l, np.unique(df_bogota[df_bogota.poly_id==l]['poly_name'])[0] ))
 
     df_bogota_loc = df_bogota[df_bogota.poly_id==l]
 
-    if os.path.isfile( os.path.join(path_to_save, 'infections', 'infections_df_{}_confirmation.csv'.format(l))):
+    if os.path.isfile( os.path.join(path_to_save, 'infections', 'infections_df_{}_confirmation.csv'.format(l))) and not re_write_bool:
         continue
 
     with localconverter(ro.default_converter + pandas2ri.converter):
