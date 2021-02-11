@@ -3,16 +3,23 @@ import pandas as pd
 import numpy as np
 import os
 
+import wget
 data_dir_mnps = config.get_property('geo_dir')
 data_dir      = config.get_property('data_dir')
 results_dir   = config.get_property('results_dir')
 
-data_df = pd.read_csv(os.path.join(data_dir, 'cases', 'covid19_26012021.csv'),
-    usecols=['FECHA_DE_INICIO_DE_SINTOMAS',
-            'FECHA_DIAGNOSTICO',
-            'EDAD',
-            'SEXO',
-            'LOCALIDAD_ASIS'],  sep=';')
+
+URL       = 'https://datosabiertos.bogota.gov.co/dataset/44eacdb7-a535-45ed-be03-16dbbea6f6da/resource/b64ba3c4-9e41-41b8-b3fd-2da21d627558/download/osb_enftransm-covid-19_09022021.csv'
+wget.download(URL, out=os.path.join(data_dir, 'cases', 'cases_raw2.csv'))
+
+
+
+cases_raw = pd.read_csv(URL, sep=';',  encoding="ISO-8859-1")
+cases_raw = cases_raw.iloc[:-5]
+cases_raw.to_csv(os.path.join(data_dir, 'cases', 'cases_raw.csv'))
+
+data_df = pd.read_csv(os.path.join(data_dir, 'cases', 'cases_raw.csv'),  sep=';')
+data_df = cases_raw.copy()
 
 data_df['cases'] = 1
 
@@ -52,8 +59,8 @@ data_df = data_df.replace( {'Usaqu�n' :              '01 - Usaquén',
 
 localidades1 = np.sort(data_df.LOCALIDAD_ASIS.unique())
 
-data_df2 = pd.read_csv(os.path.join(data_dir, 'cases', 'cases_raw.csv'), sep=';')
-localidades2 = np.sort(data_df2.localidadAsis.unique())
+data_df2 = pd.read_csv(os.path.join(data_dir, 'cases', 'cases_raw.csv'), sep=',')
+localidades2 = np.sort(data_df2.LOCALIDAD_ASIS.unique())
 
 cases_df = data_df.groupby(['FECHA_DIAGNOSTICO', 'LOCALIDAD_ASIS']).sum()[['cases']].reset_index().rename(columns={
     'FECHA_DIAGNOSTICO': 'date_time',

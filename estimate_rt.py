@@ -36,7 +36,7 @@ r_df_bogota[0]  = base.as_Date(r_df_bogota[0], format= "%Y-%m-%d")
 df_bogota['poly_id']   = df_bogota['region'].map(lambda x: x.split('-')[0].strip() )
 df_bogota['poly_name'] = df_bogota['region'].map(lambda x: x.split('-')[-1].strip())
 
-path_to_save = '/Users/chaosdonkey06/Dropbox/bogota_rotating_lockdowns'
+path_to_save = '/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns'
 poly_ids = [ '{0:02d}'.format(n) for n in range(1,21)]
 
 for l in poly_ids:
