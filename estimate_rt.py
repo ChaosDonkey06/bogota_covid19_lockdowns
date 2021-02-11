@@ -43,7 +43,7 @@ df_bogota['poly_name'] = df_bogota['region'].map(lambda x: x.split('-')[-1].stri
 path_to_save = '/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns'
 poly_ids = [ '{0:02d}'.format(n) for n in range(1,21)]
 
-for l in np.flip(poly_ids):
+for l in poly_ids:
     print('Running rt estimates for loc {} - {}'.format(l, np.unique(df_bogota[df_bogota.poly_id==l]['poly_name'])[0] ))
 
     df_bogota_loc = df_bogota[df_bogota.poly_id==l]
