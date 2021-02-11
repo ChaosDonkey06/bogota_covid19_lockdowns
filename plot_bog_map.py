@@ -68,7 +68,7 @@ for loc in g4:
 def plot_bog_specified_column(df_polygons, title, col_name='value', cmap = 'seismic_r', labels = True, path_to_save = None):
     fig, ax = plt.subplots(1,1, figsize=(10, 20))
     maps1 = polygons_bog.plot(ax=ax, edgecolor='black', alpha=0.3, facecolor='Grey', linewidth=1)
-    maps2 = polygons_bog.plot(ax=ax, edgecolor='gray', column=col_name, cmap='seismic_r', alpha=0.8, linewidth=1)
+    maps2 = polygons_bog.plot(ax=ax, edgecolor='gray', column=col_name, cmap=cmap, alpha=0.8, linewidth=1)
 
     # Plot values as linestring
     ax.set_title(title, fontsize = 16)
@@ -82,6 +82,6 @@ def plot_bog_specified_column(df_polygons, title, col_name='value', cmap = 'seis
 
 path_to_figs = os.path.join(results_dir, 'figures', 'maps_group')
 plot_bog_specified_column(polygons_bog, None, col_name='group_1', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_1.png'))
-plot_bog_specified_column(polygons_bog, None, col_name='group_2', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_2.png'))
-plot_bog_specified_column(polygons_bog, None, col_name='group_3', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_3.png'))
-plot_bog_specified_column(polygons_bog, None, col_name='group_4', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_4.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_2', cmap = 'RdYlGn', labels = True, path_to_save = os.path.join(path_to_figs, 'group_2.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_3', cmap = 'RdYlGn', labels = True, path_to_save = os.path.join(path_to_figs, 'group_3.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_4', cmap = 'RdYlGn', labels = True, path_to_save = os.path.join(path_to_figs, 'group_4.png'))
