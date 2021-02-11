@@ -1,4 +1,5 @@
 name,value
-geo_dir,/home/covid3/Dropbox/shapefiles/colombia/bogota
-data_dir,/home/covid3/Dropbox/BIOMAC/bogota_rotating_lockdowns/data/
-results_dir,/home/covid3/Dropbox/BIOMAC/bogota_rotating_lockdowns/
+covid_fb,/Users/chaosdonkey06/Dropbox/covid_fb/data/data_stages/bogota
+geo_dir,/Users/chaosdonkey06/Dropbox/shapefiles/colombia/bogota
+data_dir,/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns/data/
+results_dir,/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns/

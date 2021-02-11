@@ -29,16 +29,59 @@ g2 = ['Bosa', 'Antonio Nariño', 'Kennedy', 'Puente Aranda', 'Fontibón']
 g3 = ['Suba', 'Engativá', 'Barrios Unidos']
 g4 = ['Usaquén', 'Chapinero', 'Santa Fe', 'La Candelaria', 'Teusaquillo', 'Puente Aranda', 'Antonio Nariño']
 
-def plot_movement_polygons(df_polygons, title, clim_max=700, col_name='value', cmap = 'coolwarm', labels = True, path_to_save = None):
-    fig, ax = plt.subplots(1,1, figsize=(10, 20))
+dict_correct = {'Los Martires': 'Los Mártires', 'Fontibon': 'Fontibón', 'Engativa': 'Engativá',
+                            'San Cristobal': 'San Cristóbal'}
+polygons_bog['label'] = polygons_bog['label'].replace(dict_correct)
 
-    # Plot base polygon
-    df_polygons.plot(ax=ax, edgecolor='black', facecolor='white', cmap=cmap,)
+
+
+polygons_bog["group_1"] = None
+polygons_bog["group_1_label"] = None
+
+polygons_bog["group_2"] = None
+polygons_bog["group_2_label"] = None
+
+polygons_bog["group_3"] = None
+polygons_bog["group_3_label"] = None
+
+polygons_bog["group_4"] = None
+polygons_bog["group_4_label"] = None
+
+for loc in g1:
+    polygons_bog["group_1"][polygons_bog.label==loc]=True
+    polygons_bog["group_1_label"][polygons_bog.label==loc]=loc
+
+for loc in g2:
+    polygons_bog["group_2"][polygons_bog.label==loc]=True
+    polygons_bog["group_2_label"][polygons_bog.label==loc]=loc
+
+for loc in g3:
+    polygons_bog["group_3"][polygons_bog.label==loc]=True
+    polygons_bog["group_3_label"][polygons_bog.label==loc]=loc
+
+for loc in g4:
+    polygons_bog["group_4"][polygons_bog.label==loc]=True
+    polygons_bog["group_4_label"][polygons_bog.label==loc]=loc
+
+
+
+def plot_bog_specified_column(df_polygons, title, col_name='value', cmap = 'seismic_r', labels = True, path_to_save = None):
+    fig, ax = plt.subplots(1,1, figsize=(10, 20))
+    maps1 = polygons_bog.plot(ax=ax, edgecolor='black', alpha=0.3, facecolor='Grey', linewidth=1)
+    maps2 = polygons_bog.plot(ax=ax, edgecolor='gray', column=col_name, cmap='seismic_r', alpha=0.8, linewidth=1)
 
     # Plot values as linestring
     ax.set_title(title, fontsize = 16)
     ax.set_axis_off()
+
     if labels:
-        df_polygons.apply(lambda p: ax.text(s=p['label'], x=p.geometry.centroid.coords[0][0], y = p.geometry.centroid.coords[0][1], ha='center'), axis=1)
+        df_polygons.apply(lambda p: ax.text(s=p[col_name+'_label'], x=p.geometry.centroid.coords[0][0], y = p.geometry.centroid.coords[0][1], ha='center', fontsize=15), axis=1)
+
     if path_to_save:
-        fig.savefig(path_to_save, bbox_inches='tight', dpi=400)
+        fig.savefig(path_to_save, bbox_inches='tight', dpi=300, transparent=True)
+
+path_to_figs = os.path.join(results_dir, 'figures', 'maps_group')
+plot_bog_specified_column(polygons_bog, None, col_name='group_1', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_1.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_2', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_2.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_3', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_3.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_4', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_4.png'))
