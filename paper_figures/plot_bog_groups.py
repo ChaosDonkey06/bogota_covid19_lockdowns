@@ -63,8 +63,6 @@ for loc in g4:
     polygons_bog["group_4"][polygons_bog.label==loc]=True
     polygons_bog["group_4_label"][polygons_bog.label==loc]=loc
 
-
-
 def plot_bog_specified_column(df_polygons, title, col_name='value', cmap = 'seismic_r', labels = True, path_to_save = None):
     fig, ax = plt.subplots(1,1, figsize=(10, 20))
     maps1 = polygons_bog.plot(ax=ax, edgecolor='black', alpha=0.3, facecolor='Grey', linewidth=1)
