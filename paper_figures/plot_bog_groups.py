@@ -30,11 +30,10 @@ g3 = ['Suba', 'Engativá', 'Barrios Unidos']
 g4 = ['Usaquén', 'Chapinero', 'Santa Fe', 'La Candelaria', 'Teusaquillo', 'Puente Aranda', 'Antonio Nariño']
 
 dict_correct = {'Los Martires': 'Los Mártires', 'Fontibon': 'Fontibón', 'Engativa': 'Engativá',
-                            'San Cristobal': 'San Cristóbal', 'Usaquen': 'Usaquén'}
+                            'San Cristobal': 'San Cristóbal', 'Usaquen': 'Usaquén',
+                            'Ciudad Bolivar': 'Ciudad Bolívar', 'Candelaria': 'La Candelaria'}
 
 polygons_bog['label'] = polygons_bog['label'].replace(dict_correct)
-
-
 
 polygons_bog["group_1"] = None
 polygons_bog["group_1_label"] = None
