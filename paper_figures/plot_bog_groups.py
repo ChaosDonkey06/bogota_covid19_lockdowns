@@ -30,7 +30,8 @@ g3 = ['Suba', 'Engativá', 'Barrios Unidos']
 g4 = ['Usaquén', 'Chapinero', 'Santa Fe', 'La Candelaria', 'Teusaquillo', 'Puente Aranda', 'Antonio Nariño']
 
 dict_correct = {'Los Martires': 'Los Mártires', 'Fontibon': 'Fontibón', 'Engativa': 'Engativá',
-                            'San Cristobal': 'San Cristóbal'}
+                            'San Cristobal': 'San Cristóbal', 'Usaquen': 'Usaquén'}
+
 polygons_bog['label'] = polygons_bog['label'].replace(dict_correct)
 
 
@@ -82,6 +83,6 @@ def plot_bog_specified_column(df_polygons, title, col_name='value', cmap = 'seis
 
 path_to_figs = os.path.join(results_dir, 'figures', 'maps_group')
 plot_bog_specified_column(polygons_bog, None, col_name='group_1', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_1.png'))
-plot_bog_specified_column(polygons_bog, None, col_name='group_2', cmap = 'RdYlGn', labels = True, path_to_save = os.path.join(path_to_figs, 'group_2.png'))
-plot_bog_specified_column(polygons_bog, None, col_name='group_3', cmap = 'RdYlGn', labels = True, path_to_save = os.path.join(path_to_figs, 'group_3.png'))
-plot_bog_specified_column(polygons_bog, None, col_name='group_4', cmap = 'RdYlGn', labels = True, path_to_save = os.path.join(path_to_figs, 'group_4.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_2', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_2.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_3', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_3.png'))
+plot_bog_specified_column(polygons_bog, None, col_name='group_4', cmap = 'seismic_r', labels = True, path_to_save = os.path.join(path_to_figs, 'group_4.png'))

@@ -58,4 +58,4 @@ g1 = ['Chapinero', 'Los Mártires', 'San Cristóbal', 'Tunjuelito',
 g2 = ['Bosa', 'Antonio Nariño', 'Kennedy', 'Puente Aranda', 'Fontibón']
 g3 = ['Suba', 'Engativá', 'Barrios Unidos']
 g4 = ['Usaquén', 'Chapinero', 'Santa Fe', 'La Candelaria',
-    'Teusaquillo', 'Puente Aranda', 'Antonio Nariño']
+        'Teusaquillo', 'Puente Aranda', 'Antonio Nariño']
