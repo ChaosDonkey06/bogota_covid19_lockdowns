@@ -47,10 +47,7 @@ rt_df = rt_df.drop(columns=['Unnamed: 0'])
 rt_df['date'] = pd.to_datetime(rt_df['date'])
 cm = pylab.get_cmap('gist_ncar')
 
-
-
 fig, ax = plt.subplots(1, 1, figsize=(15.5, 7))
-
 dates_before = pd.date_range(end='2020-07-13', periods=15)
 dates_after  = pd.date_range(start='2020-08-27', periods=15)
 
@@ -81,10 +78,10 @@ for idx, group_l in enumerate(dict_info.keys()):
     rt_df_lock = rt_df.copy(); rt_df_lock = rt_df_lock[rt_df_lock.region.isin(localities)];  rt_df_lock = rt_df_lock[rt_df_lock.date.isin(date_range)]
     rt_df_free = rt_df.copy(); rt_df_free = rt_df_free[~rt_df_free.region.isin(localities)]; rt_df_free = rt_df_free[rt_df_free.date.isin(date_range)]
 
-    for loc in rt_df_lock.region.unique():
-        rt_df_lock_loc = rt_df_lock.copy(); rt_df_lock_loc = rt_df_lock_loc[rt_df_lock_loc.region==loc]
+    #for loc in rt_df_lock.region.unique():
+    #    rt_df_lock_loc = rt_df_lock.copy(); rt_df_lock_loc = rt_df_lock_loc[rt_df_lock_loc.region==loc]
         #ax.fill_between(rt_df_lock_loc.date, rt_df_lock_loc.upper_90, rt_df_lock_loc.lower_90, alpha=0.2, color='red')
-        ax.plot(rt_df_lock_loc.date, rt_df_lock_loc["median"], color='red', linewidth=0.4)
+    #    ax.plot(rt_df_lock_loc.date, rt_df_lock_loc["median"], color='red', linewidth=0.4)
 
     #for loc in rt_df_free.region.unique():
     #    ax.fill_between(rt_df_free.date, rt_df_free.upper_90, rt_df_free.lower_90, alpha=0.2, color='grey')
@@ -114,8 +111,9 @@ ax.spines['bottom'].set_visible(False)
 ax.grid(which='major', axis='y', c='k', alpha=.1, zorder=-2)
 ax.tick_params(axis='both', labelsize=15)
 ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.2f}"))
-ax.set_title('Rotating lockdown effect', fontsize=15)
+ax.set_title('Rotating lockdown', fontsize=15)
 ax.set_ylabel(r'$R_t$', fontsize=15)
 ax.legend(fontsize=15)
 ax.legend(loc='upper left')
+fig.savefig(os.path.join(results_dir,'figures','rt' ,'barplots.png'), dpi=300,  bbox_inches='tight', transparent=True)
 plt.show()
