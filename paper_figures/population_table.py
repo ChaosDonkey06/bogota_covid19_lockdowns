@@ -85,3 +85,8 @@ lockdowns_info_df.loc['g3']['population'] =  np.sum(polygons_bog['population']*p
 lockdowns_info_df.loc['g4']['population'] =  np.sum(polygons_bog['population']*polygons_bog['g4'])
 
 lockdowns_info_df['population_density'] =  lockdowns_info_df['population']/lockdowns_info_df['area']
+
+
+########
+#polygons_bog = polygons_bog[["location_id", "label", "area", "population"]].rename(columns={'location_id': 'poly_id', 'label': 'poly_name'})
+#polygons_bog.to_csv('/Users/chaosdonkey06/Dropbox/covid_fb/data/data_stages/bogota/agglomerated/geometry/polygons_pop.csv')
