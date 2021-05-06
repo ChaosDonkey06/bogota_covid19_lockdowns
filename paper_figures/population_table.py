@@ -88,5 +88,5 @@ lockdowns_info_df['population_density'] =  lockdowns_info_df['population']/lockd
 
 
 ########
-#polygons_bog = polygons_bog[["location_id", "label", "area", "population"]].rename(columns={'location_id': 'poly_id', 'label': 'poly_name'})
-#polygons_bog.to_csv('/Users/chaosdonkey06/Dropbox/covid_fb/data/data_stages/bogota/agglomerated/geometry/polygons_pop.csv')
+# polygons_bog = polygons_bog[["location_id", "label", "area", "population"]].rename(columns={'location_id': 'poly_id', 'label': 'poly_name'})
+# polygons_bog.to_csv('/Users/chaosdonkey06/Dropbox/covid_fb/data/data_stages/bogota/agglomerated/geometry/polygons_pop.csv', index=False)
