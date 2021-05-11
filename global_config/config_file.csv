@@ -3,3 +3,4 @@ covid_fb,/Users/chaosdonkey06/Dropbox/covid_fb/data/data_stages/bogota
 geo_dir,/Users/chaosdonkey06/Dropbox/shapefiles/colombia/bogota
 data_dir,/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns/data/
 results_dir,/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns/
+pipeline_dir,/Users/chaosdonkey06/Dropbox/BIOMAC/bogota_rotating_lockdowns/
