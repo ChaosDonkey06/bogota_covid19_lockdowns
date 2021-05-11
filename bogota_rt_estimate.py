@@ -10,6 +10,7 @@ from rpy2.robjects import pandas2ri
 import rpy2.robjects.numpy2ri
 import rpy2.robjects as ro
 
+from datetime import date, timedelta
 import sys
 
 
@@ -49,4 +50,6 @@ l='bog'
 inf_df = pd.DataFrame( bogota_rt[0][0] )
 inf_df.to_csv( os.path.join(results_dir, 'bog_rt', 'infections_df_{}_confirmation.csv'.format(l)) )
 rt_df  = pd.DataFrame( bogota_rt[0][1] )
-rt_df.to_csv( os.path.join(results_dir, 'bog_rt', 'rt_df_{}_confirmation.csv'.format(l)) )
+
+rt_df['date'] = rt_df['date'].map(lambda x: pd.to_datetime(0)+timedelta(days=x))
+rt_df.to_csv( os.path.join(results_dir, 'bog_rt', 'rt_df_{}_confirmation.csv'.format(l)), index=False)
