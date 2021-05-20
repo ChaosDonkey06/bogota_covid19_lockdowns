@@ -27,16 +27,31 @@ reporting_delay   = epinow2.estimate_delay(ro.r.rlnorm(1000,  ro.r.log(3), 1),
 
 
 data_dir_mnps = config.get_property('geo_dir')
-data_dir      = config.get_property('data_dir')
 fb_ppl_data   = config.get_property('covid_fb')
+data_dir      = config.get_property('data_dir')
 results_dir   = config.get_property('results_dir')
 
 data_cases_path = os.path.join(fb_ppl_data, 'agglomerated', 'geometry')
 
 cases_df = pd.read_csv(os.path.join(data_cases_path, 'cases.csv'), parse_dates=["date_time"])
-cases_bog_df = cases_df.groupby('date_time').sum()[["num_cases", "num_diseased"]]
-cases_bog_df = cases_bog_df.resample('1D').sum().reset_index().rename(columns={'date_time': 'date', 'num_cases': 'confirm', 'num_diseased': 'death'})
-cases_bog_df = cases_bog_df.iloc[:-14]
+
+
+dict_correct = {'Los Martires': 'Los Mártires', 'Fontibon': 'Fontibón', 'Engativa': 'Engativá',
+                            'San Cristobal': 'San Cristóbal', 'Usaquen': 'Usaquén',
+                            'Ciudad Bolivar': 'Ciudad Bolívar', 'Candelaria': 'La Candelaria'}
+
+cases_df["poly_id"]  = cases_df["poly_id"].apply(lambda s:   s.replace("colombia_bogota_localidad_",""))
+
+cases_df["poly_name"]  = cases_df["poly_id"].apply(lambda s:   ' '.join( [word.capitalize() for word in s.replace("colombia_bogota_localidad_","").split('_') ] ) )
+cases_df["poly_name"]  = cases_df["poly_name"].replace( dict_correct )
+
+
+
+cases_bog_df = cases_df.groupby(['poly_id', 'poly_name', 'date_time']).sum()[["num_cases", "num_diseased", "num_infected_in_icu"]]
+
+cases_bog_df = cases_bog_df.unstack([0,1]).resample('1D').sum().stack().stack()
+
+
 with localconverter(ro.default_converter + pandas2ri.converter):
     r_df_bogota_loc = ro.conversion.py2rpy(cases_bog_df[['date','confirm']])
 r_df_bogota_loc[0]  = base.as_Date(r_df_bogota_loc[0], format= "%Y-%m-%d")
