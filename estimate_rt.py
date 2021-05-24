@@ -60,7 +60,7 @@ for poly_name in cases_bog_df["poly_id"].unique():
     print('Running rt estimates for loc {}'.format( poly_name ))
 
     df_bogota_loc = cases_bog_df.copy()
-    df_bogota_loc = df_bogota_loc[df_bogota_loc.poly_id==poly_name]
+    df_bogota_loc = df_bogota_loc[df_bogota_loc.poly_id==poly_name][["date", "confirm"]]
 
     if os.path.isfile( os.path.join(path_to_save, 'infections_new', 'infections_df_{}_confirmation.csv'.format(poly_name))) and not re_write_bool:
         continue
@@ -73,7 +73,7 @@ for poly_name in cases_bog_df["poly_id"].unique():
                                 generation_time = generation_time,
                                 delays = epinow2.delay_opts(incubation_period, reporting_delay),
                                 rt = epinow2.rt_opts(prior = ro.r.list(mean = 2, sd = 0.2)),
-                                stan = epinow2.stan_opts(cores = 4))#, verborse=ro.r.TRUE)
+                                stan = epinow2.stan_opts(cores = 4))
 
     inf_df = pd.DataFrame( bogota_rt[0][0] )
     inf_df.to_csv( os.path.join(path_to_save, 'infections', 'infections_df_{}_confirmation.csv'.format(poly_name)) )
