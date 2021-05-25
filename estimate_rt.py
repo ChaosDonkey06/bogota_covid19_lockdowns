@@ -52,8 +52,6 @@ cases_bog_df = cases_bog_df.unstack([0,1]).resample('1D').sum().stack().stack().
                                                                                                                 'num_diseased': 'deaths',
                                                                                                                 'num_infected_in_icu': 'icu'})
 
-
-
 path_to_save = results_dir
 
 for poly_name in cases_bog_df["poly_id"].unique():
