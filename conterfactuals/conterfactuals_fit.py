@@ -1,4 +1,5 @@
 from covid19_forecast.functions.adjust_cases_functions import prepare_cases
+from covid19_forecast.functions.samples_utils import create_df_response
 from covid19_forecast.functions.general_utils import  get_bool
 from covid19_forecast.models.seird_model import SEIRD
 
@@ -147,3 +148,8 @@ lockdowns.append({"code": "D",
                             "teusaquillo",
                            "puente_aranda",
                            "antonio_narino"]})
+
+for loc in lockdowns:
+    print("Fitting counterfactual for lockdown {}".format(loc["code"]))
+    data = bog_agg_df.loc[:loc["start_date"]][["confirm", "deaths"]].rename(columns={"confirm": "confirmed", "deaths": "death"})
+    df_deaths, df_cases = fit_forecast(data, pop=8181047, path_to_save=os.path.join( results_dir, 'conterfactuals', loc["code"]) )
