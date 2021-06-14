@@ -12,8 +12,6 @@ sys.path.insert(0,'..')
 from global_config import config
 
 
-
-
 for loc in lockdowns:
     print("Fitting counterfactual for lockdown {}".format(loc["code"]))
     data = bog_agg_df.loc[:loc["start_date"]][["confirm", "deaths"]].rename(columns={"smoothed_confirm": "confirmed", "smoothed_deaths": "death"})

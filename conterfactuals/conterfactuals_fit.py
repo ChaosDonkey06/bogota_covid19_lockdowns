@@ -154,5 +154,5 @@ bog_agg_df = prepare_cases(bog_agg_df, col='deaths')
 
 for loc in lockdowns:
     print("Fitting counterfactual for lockdown {}".format(loc["code"]))
-    data = bog_agg_df.loc[:loc["start_date"]][["confirm", "deaths"]].rename(columns={"confirm": "confirmed", "deaths": "death"})
+    data = bog_agg_df.loc[:loc["start_date"]][["smoothed_confirm", "smoothed_deaths"]].rename(columns={"smoothed_confirm": "confirmed", "smoothed_deaths": "death"})
     df_deaths, df_cases = fit_forecast(data, pop=8181047, path_to_save=os.path.join( results_dir, 'conterfactuals', loc["code"]) )
