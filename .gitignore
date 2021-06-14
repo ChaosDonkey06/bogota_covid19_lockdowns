@@ -5,6 +5,8 @@ __pycache__/
 
 *.csv
 
+conterfactuals/covid19_forecasts/*
+
 # C extensions
 *.so
 
