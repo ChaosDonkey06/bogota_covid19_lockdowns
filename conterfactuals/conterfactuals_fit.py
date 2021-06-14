@@ -149,6 +149,9 @@ lockdowns.append({"code": "D",
                            "puente_aranda",
                            "antonio_narino"]})
 
+bog_agg_df = prepare_cases(bog_agg_df, col='confirm')
+bog_agg_df = prepare_cases(bog_agg_df, col='deaths')
+
 for loc in lockdowns:
     print("Fitting counterfactual for lockdown {}".format(loc["code"]))
     data = bog_agg_df.loc[:loc["start_date"]][["confirm", "deaths"]].rename(columns={"confirm": "confirmed", "deaths": "death"})
