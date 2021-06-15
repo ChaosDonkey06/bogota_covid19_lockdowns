@@ -12,11 +12,19 @@ sys.path.insert(0,'..')
 from global_config import config
 
 
+rpy2.robjects.numpy2ri.activate()
+epinow2 = importr("EpiNow2")
+base    = importr('base')
+
+generation_time   = epinow2.get_generation_time(disease = "SARS-CoV-2", source = "ganyani")
+incubation_period = epinow2.get_incubation_period(disease = "SARS-CoV-2", source = "lauer")
+reporting_delay   = epinow2.estimate_delay(ro.r.rlnorm(1000,  ro.r.log(3), 1),
+                                  max_value = 15, bootstraps = 1)
+
 data_dir_mnps = config.get_property('geo_dir')
 fb_ppl_data   = config.get_property('covid_fb')
 data_dir      = config.get_property('data_dir')
 results_dir   = config.get_property('results_dir')
-
 
 
 data_dir_mnps = config.get_property('geo_dir')
@@ -94,7 +102,7 @@ lockdowns.append({"code": "D",
 def estimate_rt(cases_df, path_to_save=None):
     cases_bog_df = cases_df.copy()
     cases_bog_df = cases_bog_df.reset_index().groupby('date').sum()
-    cases_bog_df = cases_bog_df.reset_index()[["date", "confirm", "num_diseased"]]
+    cases_bog_df = cases_bog_df.reset_index()[["date", "confirm", "deaths"]]
     cases_bog_df = cases_bog_df.set_index("date").resample('1D').sum().reset_index()
 
     with localconverter(ro.default_converter + pandas2ri.converter):
@@ -107,7 +115,6 @@ def estimate_rt(cases_df, path_to_save=None):
                         rt = epinow2.rt_opts(prior = ro.r.list(mean = 2, sd = 0.2)),
                         stan = epinow2.stan_opts(cores = 4))#, verborse=ro.r.TRUE)
 
-    l='bog'
     inf_df = pd.DataFrame( bogota_rt[0][0] )
     rt_df  = pd.DataFrame( bogota_rt[0][1] )
 
@@ -133,3 +140,5 @@ for loc in lockdowns:
     df_forecast = pd.merge(df_deaths, df_cases, left_index=True, right_index=True)[["confirm", "deaths"]]
 
     data = pd.concat([data, df_forecast])
+
+    rt_df, inf_df = estimate_rt(data, path_to_save=path_to_cf)
