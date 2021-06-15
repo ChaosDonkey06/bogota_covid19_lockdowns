@@ -127,12 +127,12 @@ def estimate_rt(cases_df, path_to_save=None):
     inf_df = pd.DataFrame( bogota_rt[0][0] )
     rt_df  = pd.DataFrame( bogota_rt[0][1] )
 
-    rt_df['date']  = rt_df['date'].map(lambda x: pd.to_datetime(0)+timedelta(days=x))
-    inf_df['date'] = inf_df['date'].map(lambda x: pd.to_datetime(0)+timedelta(days=x))
-
 
     rt_df = rt_df[rt_df.type=='estimate']
     rt_df = rt_df[rt_df.variable=='R']
+    rt_df = rt_df.dropna()
+    rt_df['date']  = rt_df['date'].map(lambda x: pd.to_datetime(0)+timedelta(days=x))
+
     rt_df["type_id"] = cases_df["type"]
 
     inf_df = inf_df[inf_df.type=='estimate']
