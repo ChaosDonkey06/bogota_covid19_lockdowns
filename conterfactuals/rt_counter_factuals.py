@@ -54,8 +54,6 @@ cases_df["poly_id"]  = cases_df["poly_id"].apply(lambda s:   s.replace("colombia
 cases_df["poly_name"]  = cases_df["poly_id"].apply(lambda s:   ' '.join( [word.capitalize() for word in s.replace("colombia_bogota_localidad_","").split('_') ] ) )
 cases_df["poly_name"]  = cases_df["poly_name"].replace( dict_correct )
 
-
-
 cases_bog_df = cases_df.groupby(['poly_id', 'poly_name', 'date_time']).sum()[["num_cases", "num_diseased", "num_infected_in_icu"]]
 cases_bog_df = cases_bog_df.unstack([0,1]).resample('1D').sum().stack().stack().reset_index().rename(columns={'date_time':'date','num_cases': 'confirm',
                                                                                                                 'num_diseased': 'deaths',
@@ -107,21 +105,24 @@ lockdowns.append({"code": "D",
                            "antonio_narino"]})
 
 
+from datetime import datetime, timedelta
+
 def estimate_rt(cases_df, path_to_save=None):
     cases_bog_df = cases_df.copy()
-    cases_bog_df = cases_bog_df.reset_index().groupby('date').sum()
+    cases_bog_df = cases_bog_df.groupby('date').sum()
     cases_bog_df = cases_bog_df.reset_index()[["date", "confirm", "deaths"]]
     cases_bog_df = cases_bog_df.set_index("date").resample('1D').sum().reset_index()
+    cases_bog_df["confirm"] = cases_bog_df["confirm"].apply(lambda x: int(x))
 
     with localconverter(ro.default_converter + pandas2ri.converter):
         r_df_bogota_loc = ro.conversion.py2rpy(cases_bog_df[['date','confirm']])
     r_df_bogota_loc[0]  = base.as_Date(r_df_bogota_loc[0], format= "%Y-%m-%d")
 
     bogota_rt = epinow2.epinow(reported_cases = r_df_bogota_loc,
-                        generation_time = generation_time,
-                        delays = epinow2.delay_opts(incubation_period, reporting_delay),
-                        rt = epinow2.rt_opts(prior = ro.r.list(mean = 2, sd = 0.2)),
-                        stan = epinow2.stan_opts(cores = 4))#, verborse=ro.r.TRUE)
+                                generation_time = generation_time,
+                                delays = epinow2.delay_opts(incubation_period, reporting_delay),
+                                rt = epinow2.rt_opts(prior = ro.r.list(mean = 2, sd = 0.2)),
+                                stan = epinow2.stan_opts(cores = 4))
 
     inf_df = pd.DataFrame( bogota_rt[0][0] )
     rt_df  = pd.DataFrame( bogota_rt[0][1] )
@@ -129,6 +130,12 @@ def estimate_rt(cases_df, path_to_save=None):
     rt_df['date']  = rt_df['date'].map(lambda x: pd.to_datetime(0)+timedelta(days=x))
     inf_df['date'] = inf_df['date'].map(lambda x: pd.to_datetime(0)+timedelta(days=x))
 
+
+    rt_df = rt_df[rt_df.type=='estimate']
+    rt_df = rt_df[rt_df.variable=='R']
+    rt_df["type_id"] = cases_df["type"]
+
+    inf_df = inf_df[inf_df.type=='estimate']
     rt_df.to_csv(  os.path.join(path_to_save, 'rt.csv'),  index=False)
     inf_df.to_csv( os.path.join(path_to_save, 'inf.csv'), index=False)
 
@@ -142,11 +149,14 @@ for loc in lockdowns:
     df_cases  = pd.read_csv( os.path.join(path_to_cf, 'cases_df.csv'), parse_dates=['date']).set_index('date')[["median", "type"]].rename(columns={'median': 'confirm'})
 
     data = data.loc[:loc["start_date"]][["confirm", "deaths"]]
+    data["type"] = "data"
 
     df_deaths = df_deaths[df_deaths["type"]=='forecast']
     df_cases  = df_cases [df_cases ["type"]=='forecast']
     df_forecast = pd.merge(df_deaths, df_cases, left_index=True, right_index=True)[["confirm", "deaths"]]
+    df_forecast = df_forecast.iloc[:40]
+    df_forecast["type"] = "counterfactual"
 
     data = pd.concat([data, df_forecast])
-
-    rt_df, inf_df = estimate_rt(data.reset_index(), path_to_save=path_to_cf)
+    data = data.reset_index()
+    rt_df, inf_df = estimate_rt(data, path_to_save=path_to_cf)
