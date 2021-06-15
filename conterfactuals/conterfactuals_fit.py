@@ -149,6 +149,7 @@ lockdowns.append({"code": "D",
                            "puente_aranda",
                            "antonio_narino"]})
 
+print("preparing cases")
 bog_agg_df = prepare_cases(bog_agg_df, col='confirm')
 bog_agg_df = prepare_cases(bog_agg_df, col='deaths')
 
