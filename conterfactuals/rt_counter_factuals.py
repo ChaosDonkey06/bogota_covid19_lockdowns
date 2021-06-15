@@ -149,4 +149,4 @@ for loc in lockdowns:
 
     data = pd.concat([data, df_forecast])
 
-    rt_df, inf_df = estimate_rt(data, path_to_save=path_to_cf)
+    rt_df, inf_df = estimate_rt(data.reset_index(), path_to_save=path_to_cf)
