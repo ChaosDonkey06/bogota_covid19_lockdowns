@@ -5,6 +5,14 @@ import pandas as pd
 import numpy as np
 import os
 
+
+from rpy2.robjects.conversion import localconverter
+from rpy2.robjects.packages import importr
+from rpy2.robjects import pandas2ri
+import rpy2.robjects.numpy2ri
+import rpy2.robjects as ro
+import rpy2
+
 import sys
 
 
