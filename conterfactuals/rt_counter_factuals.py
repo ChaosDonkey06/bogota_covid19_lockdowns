@@ -160,3 +160,9 @@ for loc in lockdowns:
     data = pd.concat([data, df_forecast])
     data = data.reset_index()
     rt_df, inf_df = estimate_rt(data, path_to_save=path_to_cf)
+
+# Estimate all Rt
+data = bog_agg_df.copy()
+data = data[["confirm", "deaths"]]
+path_to_cf = os.path.join(results_dir, 'conterfactuals' )
+rt_df, inf_df = estimate_rt(data, path_to_save=path_to_cf)
