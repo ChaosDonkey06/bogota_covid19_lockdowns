@@ -27,7 +27,7 @@ base    = importr('base')
 generation_time   = epinow2.get_generation_time(disease = "SARS-CoV-2", source = "ganyani")
 incubation_period = epinow2.get_incubation_period(disease = "SARS-CoV-2", source = "lauer")
 reporting_delay   = epinow2.estimate_delay(ro.r.rlnorm(1000,  ro.r.log(3), 1),
-                                  max_value = 15, bootstraps = 1)
+                                        max_value = 15, bootstraps = 1)
 
 data_dir_mnps = config.get_property('geo_dir')
 fb_ppl_data   = config.get_property('covid_fb')
