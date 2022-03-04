@@ -99,7 +99,7 @@ def plot_rt_pannel_zoomed(rt_df, g1, all_loc, title, date1, date2, path_to_save_
         rt_df_loc = rt_df[rt_df.region==l]
 
         color = cm(1.*idx/NUM_COLORS)
-    
+
         ax.fill_between(rt_df_loc.date, rt_df_loc.upper_90, rt_df_loc.lower_90, alpha=0.2, color=color)
         ax.plot(rt_df_loc.date, rt_df_loc["median"], label=l, color=color)
         ax.axhline(y=1, color='k', linestyle='--')
