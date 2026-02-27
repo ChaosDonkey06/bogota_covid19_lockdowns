@@ -111,12 +111,19 @@ SB_mcmc_conf <- configureMCMC(SB_model, monitors=c('a[1]','a[2]','a[3]','a[4]','
                                                   'theta','tau','phi','z[i]'),useConjugacy = TRUE)
 
 
-SB_mcmc<-buildMCMC(SB_mcmc_conf)
-SB_compiled_mcmc<-compileNimble(SB_mcmc, project = SB_model,resetFunctions = TRUE)
+SB_mcmc          <- buildMCMC(SB_mcmc_conf)
+SB_compiled_mcmc <- compileNimble(SB_mcmc, project = SB_model,resetFunctions = TRUE)
+
 print("Running")
-SB_samples=runMCMC(SB_compiled_mcmc,inits=SB_inits,
-                   nchains = 4, nburnin=80000,niter = 160000,samplesAsCodaMCMC = TRUE,thin=40,
-                   summary = FALSE, WAIC = FALSE,setSeed=c(seed,2*seed,3*seed,4*seed)) 
+SB_samples  = runMCMC(SB_compiled_mcmc,inits=SB_inits,
+                   nchains = 4,
+                   nburnin = 80000,
+                   niter   = 160000,
+                   samplesAsCodaMCMC = TRUE,
+                   thin    = 40,
+                   summary = FALSE,
+                   WAIC    = FALSE,
+                   setSeed = c(seed,2*seed,3*seed,4*seed))
 
 gelman.diag(SB_samples[,c('a[1]','a[2]','a[3]','a[4]','a[5]','a[6]','a[7]','a[8]','a[9]','tau','sigma')])
 
